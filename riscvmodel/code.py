@@ -21,11 +21,26 @@ def decode(word: int, variant: Variant=RV32I):
                 return i
         raise MachineDecodeError(word)
     opcode = word & 0x7F
-    for icls in get_insns(variant=variant):
-        if icls.field_opcode.value == opcode and icls.match(word):
-            i = icls()
-            i.decode(word)
-            return i
+    variants = [
+        Variant("RV32I"),
+        Variant("RV32E"),
+        Variant("RV32IZicsr"),
+        Variant("RV32IZifencei"),
+        Variant("RV32IM"),
+        Variant("RV32IC"),
+        Variant("RV64I"),
+        Variant("RV64G"),
+        Variant("RV64GC"),
+        Variant("RV128I"),
+        Variant("RV32A"),
+    ]
+    
+    for variant in variants:
+        for icls in get_insns(variant=variant):
+            if icls.field_opcode.value == opcode and icls.match(word):
+                i = icls()
+                i.decode(word)
+                return i
     raise MachineDecodeError(word)
 
 

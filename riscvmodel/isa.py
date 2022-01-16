@@ -329,6 +329,36 @@ class InstructionIType(InstructionFunct3Type, metaclass=ABCMeta):
         return "{} x{}, x{}, {}".format(self.mnemonic, self.rd, self.rs1,
                                         self.imm)
 
+class CSRxInstructionType(InstructionIType):
+    
+    # couldn't use because of 'AttributeError: Instruction does not allow to overwrite immediates, use set() on them' error
+    # def __init__(self, rd: int = None, rs1: int = None, imm: int = None):
+    #     super().__init__(rd, rs1, imm)
+    #     self.imm = Immediate(bits=12, signed=False)
+
+    def __init__(self, rd: int = None, rs1: int = None, imm: int = None):
+        super(InstructionIType, self).__init__()
+        self.rd = rd  # pylint: disable=C0103
+        self.rs1 = rs1
+        self.imm = Immediate(bits=12, signed=False)
+        if imm is not None:
+            self.imm.set(imm)
+    
+    
+    def __str__(self) -> str:
+        def find_csr_name(addr):
+            from . import csrnames
+            all_names = [x for x in dir(csrnames) if not x.startswith("__")]
+            for name in all_names:
+                val = getattr(csrnames, name, None)
+                if val is not None:
+                    if val == addr:
+                        return name
+            raise ValueError(f"CSR not found: {addr}")
+
+        return "{} x{}, x{}, {}".format(self.mnemonic, self.rd, self.rs1,
+                                        find_csr_name(self.imm))
+
 class InstructionILType(InstructionIType, metaclass=ABCMeta):
     """
     I-type instruction specialization for stores. The produce a different

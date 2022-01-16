@@ -355,19 +355,19 @@ class InstructionEBREAK(InstructionIType):
 
 
 @isa("csrrw", RV32IZicsr, opcode=0b1110011, funct3=0b001)
-class InstructionCSRRW(InstructionIType):
+class InstructionCSRRW(CSRxInstructionType):
     def execute(self, model: Model):
         pass
 
 
 @isa("csrrs", RV32IZicsr, opcode=0b1110011, funct3=0b010)
-class InstructionCSRRS(InstructionIType):
+class InstructionCSRRS(CSRxInstructionType):
     def execute(self, model: Model):
         pass
 
 
 @isa("csrrc", RV32IZicsr, opcode=0b1110011, funct3=0b011)
-class InstructionCSRRC(InstructionIType):
+class InstructionCSRRC(CSRxInstructionType):
     def execute(self, model: Model):
         pass
 
