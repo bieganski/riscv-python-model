@@ -36,13 +36,33 @@ def decode(word: int, variant: Variant=RV32I):
     ]
     
     for variant in variants:
+        results = []
         for icls in get_insns(variant=variant):
             if icls.field_opcode.value == opcode and icls.match(word):
                 i = icls()
+                # i.decode(word)
+                results.append(i)
+        if len(results) == 1:
+            i = results[0]
+            i.decode(word)
+            return i
+        elif len(results) == 0:
+            continue
+        else:
+            # csr - match by immediate (which is not static_field..)
+            opcode = i.extract_field("opcode", word)
+            if opcode != 0b1110011: # not system
+                # we need that crappy check as it fails e.g. for [addi, nop]...
+                i = results[0]
                 i.decode(word)
                 return i
+            my_immediate = i.extract_field("imm", word)
+            for i in results:
+                imm_val = [field.value for field in i.get_fields() if field.name == "imm"][0]
+                if imm_val == my_immediate:
+                    i.decode(word)
+                    return i
     raise MachineDecodeError(word)
-
 
 def read_from_binary(fname: str, *, stoponerror: bool = False):
     with open(fname, "rb") as f:
